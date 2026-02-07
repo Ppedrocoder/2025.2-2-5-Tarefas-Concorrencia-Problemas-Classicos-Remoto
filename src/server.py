@@ -18,10 +18,17 @@ from dotenv import load_dotenv
 
 # FIXME: Implemente a lógica de gerenciamento de vagas conforme necessário
 
+TOTAL_VAGAS = 50
+vagas_disponiveis = TOTAL_VAGAS
+leitores = 0
+
+mutex_leitores = threading.Lock()
+mutex_escrita = threading.Semaphore(1)
+
 def escutar_cliente(nova_conexao, endereco):
     """Função para tratar a comunicação com cada cliente"""
     print(f'Cliente conectado de {endereco}')
-    
+    global vagas_disponiveis, leitores
     try:
         while True:
             mensagem = nova_conexao.recv(1024)
@@ -31,25 +38,43 @@ def escutar_cliente(nova_conexao, endereco):
             print(f'Mensagem recebida de {endereco}: {comando}')
             
             if comando == 'consultar_vaga':
-                # retorna quantidade de vagas disponíveis
-                # FIXME: implementar lógica real de consulta
-                resposta = str(0)
+                with mutex_leitores:
+                    leitores += 1
+                    if leitores == 1:
+                        mutex_escrita.acquire()
+
+                resposta = str(vagas_disponiveis)
                 nova_conexao.send(resposta.encode('utf-8'))
+
+                with mutex_leitores:
+                    leitores -= 1
+                    if leitores == 0:
+                        mutex_escrita.release()
                 
             elif comando == 'pegar_vaga':
-                # FIXME: implementar lógica real de alocação
-                # retorna 1 se vaga foi alocada com sucesso
-                #     ou 0 se não há vagas disponíveis
-                resposta = str(1)
+                mutex_escrita.acquire()
+
+                if vagas_disponiveis > 0:
+                    vagas_disponiveis -= 1
+                    resposta = '1'
+                else:
+                    resposta = '0'
+
                 nova_conexao.send(resposta.encode('utf-8'))
+                mutex_escrita.release()
                 
             elif comando == 'liberar_vaga':
-                # FIXME: implementar lógica real de alocação
-                # retorna 1 se vaga foi liberada com sucesso
-                #     ou 0 se não o cliente não possuía vaga alocada
-                # caso de sucesso, lembrar de fechar a conexão e finalizar esta função
-                resposta = str(1)
+                mutex_escrita.acquire()
+
+                if vagas_disponiveis < TOTAL_VAGAS:
+                    vagas_disponiveis += 1
+                    resposta = '1'
+                else:
+                    resposta = '0'
+
                 nova_conexao.send(resposta.encode('utf-8'))
+                mutex_escrita.release()
+
                 
             else:
                 # retorna -1 para comando inválido

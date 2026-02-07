@@ -1,1 +1,6 @@
-python-dotenv
+dotenv>=0.9
+Threading>=3.0
+Time>=2.0
+Random>=2.0
+Socket>=2.0
+os>=2.0
