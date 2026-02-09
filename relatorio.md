@@ -26,7 +26,7 @@ O sistema foi dividido em dois processos principais:
 
 O servidor:
 
-- Mantém o controle do número de vagas disponíveis (inicialmente 10)
+- Mantém o controle do número de vagas disponíveis 
 
 - Aceita múltiplas conexões simultâneas
 - Cria uma thread para cada cliente conectado
