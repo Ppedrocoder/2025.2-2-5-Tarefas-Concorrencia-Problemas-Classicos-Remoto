@@ -108,7 +108,7 @@ def criar_socket_cliente():
 def main():
     threads = []
 
-    for i in range(10):
+    for i in range(50):
         socket_cliente = criar_socket_cliente()
         cliente = ClienteEstacionamento(socket_cliente, id_cliente=i)
         cliente.start()
