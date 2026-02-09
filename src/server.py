@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 
 # FIXME: Implemente a lógica de gerenciamento de vagas conforme necessário
 
-TOTAL_VAGAS = 50
+TOTAL_VAGAS = 10
 vagas_disponiveis = TOTAL_VAGAS
 leitores = 0
 
